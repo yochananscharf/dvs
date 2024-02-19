@@ -1,3 +1,5 @@
+# based on code from https://dv-processing.inivation.com/rel_1_7/event_stream_slicing.html
+
 import dv_processing as dv
 from PIL import Image
 from datetime import timedelta
@@ -6,6 +8,7 @@ import streamlit as st
 
 from skimage.transform import hough_circle
 image_area = st.empty()
+event_area_1 = st.empty()
 # Open the camera, just use first detected DAVIS camera
 #camera = dv.io.CameraCapture("", dv.io.CameraCapture.CameraType.DAVIS)
 # Open a file
@@ -25,7 +28,12 @@ slicer.addFrameStream("frames")
 # Initialize a visualizer for the overlay
 resolution = camera.getEventResolution()
 
-crop_box = (int(resolution[0]/2), 0, resolution[0], int(resolution[1]/2))
+offset = int(resolution[0]/12)
+crop_box = (int(resolution[0]/2), offset, resolution[0], int(resolution[1]/2)+offset)
+#crop_box_resize = (crop_box[2], crop_box[3])
+#filter = dv.EventRegionFilter(crop_box)
+filter_true = dv.EventPolarityFilter(True)
+filter_false = dv.EventPolarityFilter(False)
 
 visualizer = dv.visualization.EventVisualizer(camera.getEventResolution(), dv.visualization.colors.white(),
                                               dv.visualization.colors.green(), dv.visualization.colors.red())
@@ -39,7 +47,13 @@ def display_preview(data):
 
     # Retrieve event data
     events = data.getEvents("events")
-
+    #filter for positive polarity events
+    filter_true.accept(events)
+    filter_false.accept(events)
+    filtered_true = filter_true.generateEvents()
+    filtered_false = filter_false.generateEvents()
+    #filter.accept(events)
+    #filtered = filter.generateEvents()
     # Retrieve and color convert the latest frame of retrieved frames
     latest_image = None
     if len(frames) > 0:
@@ -58,6 +72,7 @@ def display_preview(data):
     preview_image_cropped = preview_image.crop(crop_box)
     preview_image_cropped = preview_image_cropped.resize(resolution) # back to size of original image
     image_area.image(preview_image_cropped)
+    #event_area_1.image(preview_image_cropped.getchannel(2))
     #cv.imshow("Preview", visualizer.generateImage(events, latest_image))
 
     # If escape button is pressed (code 27 is escape key), exit the program cleanly
