@@ -1,7 +1,6 @@
 # based on code from https://dv-processing.inivation.com/rel_1_7/event_stream_slicing.html
 
-import dv_processing as dv
-from PIL import Image, ImageDraw 
+from PIL import Image 
 from datetime import timedelta
 import numpy as np
 from streamlit import session_state as ss
@@ -121,10 +120,6 @@ def display_preview(data):
                 image_draw = eye_tracker.draw_image(events_image, eye_tracker.roi_right)
             img_plot_area[j].image(image_draw, width=200)
         
-
-
-
-
         num_pos = eye_tracker.events_stats(filtered_pos)
         num_neg = eye_tracker.events_stats(filtered_neg)
         if events.size() > 300:

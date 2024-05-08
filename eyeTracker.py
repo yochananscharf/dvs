@@ -1,14 +1,7 @@
 import dv_processing as dv
 from PIL import Image, ImageDraw 
-from datetime import timedelta
 import numpy as np
-from streamlit import session_state as ss
-import streamlit as st
-
-from time import sleep
-from skimage.transform import hough_circle, hough_circle_peaks
-from skimage.util import img_as_ubyte
-import scipy.ndimage as ndi
+#from skimage.transform import hough_circle, hough_circle_peaks
 import pandas as pd
 
 
@@ -144,13 +137,13 @@ class EyeTracking():
         return filtered_events_list
 
 
-    def detect_circle(self, edges):
+    # def detect_circle(self, edges):
         
-        hough_res = hough_circle(edges, self.hough_radii)
-        accums, cx, cy, radii = hough_circle_peaks(hough_res, self.hough_radii,
-                                           total_num_peaks=1)
-        print(accums, cx, cy)
-        return accums, cx, cy
+    #     hough_res = hough_circle(edges, self.hough_radii)
+    #     accums, cx, cy, radii = hough_circle_peaks(hough_res, self.hough_radii,
+    #                                        total_num_peaks=1)
+    #     print(accums, cx, cy)
+    #     return accums, cx, cy
     
     def events_to_csv(self, events):
         highest_t = events.getHighestTime()
