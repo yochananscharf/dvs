@@ -5,6 +5,19 @@ from PyQt5.QtCore import Qt, QTimer
 #from pyqtdarktheme import DarkPalette, DarkStyle
 from PIL import Image, ImageDraw
 
+class Session:
+    def __init__(self) -> None:
+        self.num_trials = 1
+        self.screen_dims = (0,0)
+        self.coords_origin = (0,0)
+        self.coords_list = []
+        pass
+def run_trial()
+def run_session(self):
+    for trial in self.num_trials:
+        self.run_trial()
+
+
 class EyeTrackingWindow(QLabel):
     def __init__(self, duration=1000, size=20):
         super().__init__()
