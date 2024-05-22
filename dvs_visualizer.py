@@ -158,7 +158,7 @@ if __name__ == '__main__':
             #clicked = False
     else:
         
-        ss.dvs_file = file_path_a#sidebar.file_uploader('choose file').name
+        ss.dvs_file = sidebar.file_uploader('choose file').name#file_path_a#
         ss.delta_t = sidebar.slider('Set Time-Window', min_value=10, max_value=100, value=30)
         ss.step_t = sidebar.slider('Set Files Time-Step', min_value=10, max_value=50, value=10)
         if ss.dvs_file is not None:
