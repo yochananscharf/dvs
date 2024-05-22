@@ -5,12 +5,12 @@ import numpy as np
 import pandas as pd
 
 
-file_path_a  = 'data/dvSave-2024_01_09_18_02_30.aedat4'
-file_path_b  = 'data/dvSave-2024_01_09_18_02_32.aedat4'
+#file_path_a  = 'data/dvSave-2024_01_09_18_02_30.aedat4'
+#file_path_b  = 'data/dvSave-2024_01_09_18_02_32.aedat4'
 
 class EyeTracking():
-    def __init__(self, file_name= file_path_a) -> None:
-       
+    def __init__(self, file_name=None) -> None:
+        self.file_name = 'data/'+file_name.name
         self.camera         =None  
         self.slicer=None
         self.resolution=None
@@ -66,7 +66,7 @@ class EyeTracking():
 
     def create_visualizers(self):
 
-        self.camera = dv.io.MonoCameraRecording(file_path_a)
+        self.camera = dv.io.MonoCameraRecording(self.file_name)
 
         # Initialize a multi-stream slicer
         self.slicer = dv.EventMultiStreamSlicer("events")

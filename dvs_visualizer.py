@@ -10,7 +10,7 @@ from time import sleep
 
 
 
-from eyeTracker import EyeTracking, file_path_a
+from eyeTracker import EyeTracking
 
 st.title('Event Based Camera - Eye Tracking')
 sidebar = st.sidebar
