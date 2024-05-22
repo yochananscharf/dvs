@@ -56,6 +56,7 @@ def display_preview(data):
             # Image is grayscale, convert to color (BGR image)
             #latest_image_pil = Image.fromarray(frames[-1].image).convert('RGB')
             latest_image = np.tile(frames[-1].image[:, :, None], [1, 1, 3])
+            latest_image_pil = Image.fromarray(frames[-1].image)#.crop(ss.eye_tracker.crop_box)#.convert('RGB')
     else:
         return
 
@@ -104,7 +105,7 @@ def display_preview(data):
     for evnt in events:
         ss.eye_tracker.store.push_back(evnt)
     if len(events_area) > 0:
-        ss.eye_tracker.save_events(events_area)
+        ss.eye_tracker.save_events(events_area, latest_image_pil)
     ss.eye_tracker.count +=1
     if False:
         image_pos = Image.fromarray(visualizer_true.generateImage(filtered_pos))
@@ -158,8 +159,8 @@ if __name__ == '__main__':
     else:
         
         ss.dvs_file = file_path_a#sidebar.file_uploader('choose file').name
-        ss.delta_t = sidebar.slider('Set Time-Delta', min_value=10, max_value=100, value=30)
-        ss.step_t = sidebar.slider('Set Step-Delta', min_value=10, max_value=50, value=10)
+        ss.delta_t = sidebar.slider('Set Time-Window', min_value=10, max_value=100, value=30)
+        ss.step_t = sidebar.slider('Set Files Time-Step', min_value=10, max_value=50, value=10)
         if ss.dvs_file is not None:
             ss.count = 0
             data_dir = ss.dvs_file.split('.')[0]

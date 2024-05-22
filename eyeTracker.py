@@ -145,15 +145,21 @@ class EyeTracking():
     #     print(accums, cx, cy)
     #     return accums, cx, cy
     
-    def events_to_csv(self, events):
+    def events_to_csv(self, events, pth_str):
         highest_t = events.getHighestTime()
         events_list =[ {'x':event.x(),'y': event.y(), 'polarity': event.polarity()} for event in events ]
         df = pd.DataFrame(events_list)
-        path_str = '{}_{}_{}_{}.csv'.format(self.count, str(highest_t), self.delta_t, self.step_t)
-        df_path = self.data_path/path_str
+        #path_str = '{}_{}_{}_{}.csv'.format(self.count, str(highest_t), self.delta_t, self.step_t)
+        csv_path = pth_str+'.csv'
+        df_path = self.data_path/csv_path
         df.to_csv(df_path, index=False)
 
-    def save_events(self, events):#, events, image):
+    def save_frame(self, frame, pth_str):
+        frame_path = pth_str+'.jpg'
+        save_path = self.data_path/frame_path
+        frame.convert('RGB').save(save_path)
+
+    def save_events(self, events, frame=None):#, events, image):
         
         #print(self.count)
         highest_t = events.getHighestTime()
@@ -167,8 +173,10 @@ class EyeTracking():
             #while step_start > delta_start:
             delta_slice = self.store.sliceTime(step_start, step_stop)
             #step_start -= self.step_t*1000
-            self.events_to_csv(delta_slice)
+            path_str = '{}_{}_{}_{}'.format(self.count, str(highest_t), self.delta_t, self.step_t)
+            self.events_to_csv(delta_slice, path_str)
+            self.save_frame(frame, path_str)
         else:
 
             self.events_to_csv(events)
-        #image.convert('RGB').save('{}.jpg'.format(self.count))
+        
