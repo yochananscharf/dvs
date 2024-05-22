@@ -163,7 +163,7 @@ if __name__ == '__main__':
         ss.step_t = sidebar.slider('Set Files Time-Step', min_value=10, max_value=50, value=10)
         if ss.dvs_file is not None:
             ss.count = 0
-            data_dir = ss.dvs_file.file_path_a#.split('.')[0]
+            data_dir = ss.dvs_file.file_path_a.split('.')[0]
             running_dir = Path.cwd()
             data_path = running_dir/data_dir
             Path.mkdir(data_path,exist_ok=True)
