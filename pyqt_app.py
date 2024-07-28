@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QPainter, QColor, QKeyEvent
-
+from qt_window import Session
 
 
 class MainWindow(QMainWindow):
@@ -12,6 +12,7 @@ class MainWindow(QMainWindow):
         self.setStyleSheet("background-color: black;")
         self.showFullScreen()
         self.circle_position = (-100, -100)
+        self.session = Session(screen_geometry=self.frameGeometry())
         self.init_ui()
         self.sequence_started = False
 
