@@ -4,8 +4,8 @@ from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtCore import Qt, QTimer, QThread, pyqtSignal
 #from pyqtdarktheme import DarkPalette, DarkStyle
 from PIL import Image, ImageDraw
-from time import sleep
-from random import uniform, shuffle
+from time import sleep, time
+from random import uniform, shuffle, seed
 from camera_cap import Recorder
 
 
@@ -149,57 +149,22 @@ class Session():
         self.circle_radius = self.screen_w //25#min(screen_geometry.width(), screen_geometry.height()) // 20
         #set origin coords
         self.coords_origin = (self.screen_w //2,self.screen_h//2)
-        # save origin circle png
-        #self.origin_circle_file = 'origin.png'
-        #image = Image.new("RGB", (self.screen_w, self.screen_h), "black")
-        # Draw a white circle on the image
-        #draw = ImageDraw.Draw(image)
-        x = self.coords_origin[0]
-        y = self.coords_origin[1]
-        # draw.ellipse((x - self.circle_radius, y - self.circle_radius,
-        #             x + self.circle_radius, y + self.circle_radius),
-        #             fill="white")
-        # image.save(self.origin_circle_file, "PNG")
+        
         # Define a sequence of coordinates
         self.coords_list = [(self.screen_w // 4, self.screen_h // 2), 
                             (3*self.screen_w // 4, self.screen_h // 2), 
                             (self.screen_w// 4, self.screen_h // 2)]
 
         self.circles_order = list(range(0,self.num_coords)) # for now ordered list
-        #save pngs for respective circles
-        for i, coord in enumerate(self.coords_list):
-            x = coord[0]
-            y = coord[1]
-            # Create an image with a black background
-            # image = Image.new("RGB", (self.screen_w, self.screen_h), "black")
-
-            # # Draw a white circle on the image
-            # draw = ImageDraw.Draw(image)
-            # draw.ellipse((x - self.circle_radius, y - self.circle_radius,
-            #             x + self.circle_radius, y + self.circle_radius),
-            #             fill="white")
-
-            # # Save the PIL image to a png file
-            # temp_file_name = 'circle_{}_{}.png'.format(x, y)
-            # image.save(temp_file_name, "PNG")
-            # self.circles_dict[i] = temp_file_name
-        return
         
-    # def show_circle(self):
-    #     if self.coord_index <0:
-    #         circle_file_name = self.origin_circle_file
-    #     else:
-    #         circle_file_name = self.circles_dict[self.coord_index]
-
-    #     self.qt_window.set_image_path(circle_file_name)
-        #qimage = QPixmap(circle_file_name)
-        #self.qt_window.setPixmap(qimage)
-        
-        #self.qt_window.update()
+        self.shuffled_dest_order = self.circles_order
+        seed(time())
+        shuffle(self.shuffled_dest_order)
+        print(self.shuffled_dest_order)
+        self.trial_num = 0
 
     def run_trial(self):
 
-         
         #x, y = self.coords_list[self.coords_current_idx]
         #rec_file_name = 'rec_circle_{}.aedat4'.format(x, y)
         rec_file_name = 'rec_circle_{}.aedat4'.format(self.trial_num) # set recording file-name
@@ -226,16 +191,16 @@ class Session():
         #save recording 
         #self.recorder.stop_record()
 
-    def run_session(self):
+    # def run_session(self):
 
-        #shuffle destination order 
-        self.shuffled_dest_order = self.circles_order
-        shuffle(self.shuffled_dest_order)
-        print(self.shuffled_dest_order)
-        self.trial_num = 0
-        for i in range(self.num_trials-1):
-            self.run_trial()
-            self.trial_num = i
+    #     #shuffle destination order 
+    #     self.shuffled_dest_order = self.circles_order
+    #     shuffle(self.shuffled_dest_order)
+    #     print(self.shuffled_dest_order)
+    #     self.trial_num = 0
+    #     for i in range(self.num_trials-1):
+    #         self.run_trial()
+    #         self.trial_num = i
 
 
 
