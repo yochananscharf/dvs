@@ -30,7 +30,7 @@ for i in range(4):
 
 # Callback method for time based slicing
 def display_preview(data):
-    sleep(0.2)
+    #sleep(0.2)
     #if st.sidebar.button('next-frame',count):
         # Retrieve frame data using the named method and stream name
     frames = data.getFrames("frames")
@@ -143,19 +143,29 @@ if __name__ == '__main__':
     if 'count' in ss:
         #clicked = sidebar.button('save events', on_click=ss.eye_tracker.save_events(), key=ss.count)
         #if clicked:
-            # events = ss.eye_tracker.camera.getNextEventBatch()
-            # frame = ss.eye_tracker.camera.getNextFrame()
+        events = ss.eye_tracker.camera.getNextEventBatch()
+        first_time = events[0].timestamp()
+        #time_range_frames = ss.eye_tracker.camera.getFramesTimeRange(14, 23)
+        frame = ss.eye_tracker.camera.getNextFrame()
+        frame_time = frame.timestamp
+        while time_diff > 0:
+            events = ss.eye_tracker.camera.getNextEventBatch()
+
         while  ss.eye_tracker.camera.isRunning():
             ss.count += 1
-            
-            events = ss.eye_tracker.camera.getNextEventBatch()
-            if events is not None:
-                ss.eye_tracker.slicer.accept("events", events)
 
+            events = ss.eye_tracker.camera.getNextEventBatch()
+            if (events is not None):# and (events[0].timestamp() > frame_time):
+                
+                ss.eye_tracker.slicer.accept("events", events)
+            #time_diff = (events[0].timestamp()-frame.timestamp)
+            #if time_diff > 0:
             frame = ss.eye_tracker.camera.getNextFrame()
             if frame is not None:
                 ss.eye_tracker.slicer.accept("frames", [frame])
             #clicked = False
+            #print(ss.count, time_diff)
+        print('ended', ss.count)
     else:
         
         ss.dvs_file = sidebar.file_uploader('choose file')#file_path_a#

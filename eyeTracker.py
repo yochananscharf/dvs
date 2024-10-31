@@ -69,8 +69,8 @@ class EyeTracking():
         self.camera = dv.io.MonoCameraRecording(self.file_name)
 
         # Initialize a multi-stream slicer
-        self.slicer = dv.EventMultiStreamSlicer("events")
-
+        self.slicer = dv.EventMultiStreamSlicer("events-frames")
+        self.slicer.addEventStream("events")
         # Add a frame stream to the slicer
         self.slicer.addFrameStream("frames")
 
