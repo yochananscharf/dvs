@@ -30,7 +30,7 @@ for i in range(4):
 
 # Callback method for time based slicing
 def display_preview(data):
-    #sleep(0.2)
+    sleep(0.02)
     #if st.sidebar.button('next-frame',count):
         # Retrieve frame data using the named method and stream name
     frames = data.getFrames("frames")
@@ -56,7 +56,7 @@ def display_preview(data):
             # Image is grayscale, convert to color (BGR image)
             #latest_image_pil = Image.fromarray(frames[-1].image).convert('RGB')
             latest_image = np.tile(frames[-1].image[:, :, None], [1, 1, 3])
-            latest_image_pil = Image.fromarray(frames[-1].image)#.crop(ss.eye_tracker.crop_box)#.convert('RGB')
+            #latest_image_pil = Image.fromarray(frames[-1].image)#.crop(ss.eye_tracker.crop_box)#.convert('RGB')
     else:
         return
 
@@ -68,6 +68,7 @@ def display_preview(data):
     image_area.image(image_draw)
     ss.eye_tracker.filter_region.accept(events)
     events_area = ss.eye_tracker.filter_region.generateEvents()
+    
     
 
     image_array = ss.eye_tracker.visualizer_gray.generateImage(events_area)
@@ -82,8 +83,8 @@ def display_preview(data):
     image_blue = Image.fromarray(image_array[:,:,2]).crop(ss.eye_tracker.crop_box)
     image_red = Image.fromarray(image_array[:,:,1]).crop(ss.eye_tracker.crop_box)
 
-    img_plot_area[0].image(image_blue, width=346)
-    img_plot_area[1].image(image_red, width=346)
+    #img_plot_area[0].image(image_blue, width=346)
+    #img_plot_area[1].image(image_red, width=346)
     #image = img_as_ubyte(image_events)
     #edges = canny(image, sigma=5)
     #c = ndi.center_of_mass(image)
@@ -104,28 +105,30 @@ def display_preview(data):
     # save events for future use
     for evnt in events:
         ss.eye_tracker.store.push_back(evnt)
-    if len(events_area) > 0:
-        ss.eye_tracker.save_events(events_area, latest_image_pil)
+    #if len(events_area) > 0:
+    #    ss.eye_tracker.save_events(events_area, latest_image_pil)
     ss.eye_tracker.count +=1
-    if False:
-        image_pos = Image.fromarray(visualizer_true.generateImage(filtered_pos))
-        image_pos_cropped = image_pos.crop(eye_tracker.roi_right)
+    if True:
+        #image_pos = Image.fromarray(ss.eye_tracker.visualizer_true.generateImage(filtered_pos))
+        #image_pos_cropped = image_pos.crop(ss.eye_tracker.roi_right)
         #image_pos = eye_tracker.draw_image(image_pos)
-        image_neg = Image.fromarray(visualizer_false.generateImage(filtered_neg))
-        image_neg_cropped = image_neg.crop(eye_tracker.roi_left)
+        #image_neg = Image.fromarray(ss.eye_tracker.visualizer_false.generateImage(filtered_neg))
+        #image_neg_cropped = image_neg.crop(ss.eye_tracker.roi_left)
         for j, fltrd in enumerate(filtered_list):
-            events_image = Image.fromarray(visualizer_false.generateImage(fltrd))
+            events_image = Image.fromarray(ss.eye_tracker.visualizer_false.generateImage(fltrd))
             if (j%2)==0:
-                image_draw = eye_tracker.draw_image(events_image, eye_tracker.roi_left)
+                image_draw = ss.eye_tracker.draw_image(events_image, ss.eye_tracker.roi_left)
             else:
-                image_draw = eye_tracker.draw_image(events_image, eye_tracker.roi_right)
+                image_draw = ss.eye_tracker.draw_image(events_image, ss.eye_tracker.roi_right)
             img_plot_area[j].image(image_draw, width=200)
         
-        num_pos = eye_tracker.events_stats(filtered_pos)
-        num_neg = eye_tracker.events_stats(filtered_neg)
-        if events.size() > 300:
+        #num_pos = ss.eye_tracker.events_stats(filtered_pos)
+        #num_neg = ss.eye_tracker.events_stats(filtered_neg)
+        if events.size() > ss.eye_tracker.events_thresh:
+
+            ss.eye_tracker.filter_center(events_area)
             movement_direction  = ''
-            if eye_tracker.filtered_counts[2] >  1.2*eye_tracker.filtered_counts[3]:
+            if ss.eye_tracker.filtered_counts[2] >  1.2*ss.eye_tracker.filtered_counts[3]:
                 movement_direction = 'left'
             else:
                 movement_direction = 'right'
@@ -143,19 +146,19 @@ if __name__ == '__main__':
     if 'count' in ss:
         #clicked = sidebar.button('save events', on_click=ss.eye_tracker.save_events(), key=ss.count)
         #if clicked:
-        events = ss.eye_tracker.camera.getNextEventBatch()
-        first_time = events[0].timestamp()
+        #events = ss.eye_tracker.camera.getNextEventBatch()
+        #first_time = events[0].timestamp()
         #time_range_frames = ss.eye_tracker.camera.getFramesTimeRange(14, 23)
-        frame = ss.eye_tracker.camera.getNextFrame()
-        frame_time = frame.timestamp
-        while time_diff > 0:
-            events = ss.eye_tracker.camera.getNextEventBatch()
+        #frame = ss.eye_tracker.camera.getNextFrame()
+        #frame_time = frame.timestamp
+        # while time_diff > 0:
+        #     events = ss.eye_tracker.camera.getNextEventBatch()
 
         while  ss.eye_tracker.camera.isRunning():
             ss.count += 1
 
             events = ss.eye_tracker.camera.getNextEventBatch()
-            if (events is not None):# and (events[0].timestamp() > frame_time):
+            if events is not None:# and (events[0].timestamp() > frame_time):
                 
                 ss.eye_tracker.slicer.accept("events", events)
             #time_diff = (events[0].timestamp()-frame.timestamp)
@@ -165,7 +168,7 @@ if __name__ == '__main__':
                 ss.eye_tracker.slicer.accept("frames", [frame])
             #clicked = False
             #print(ss.count, time_diff)
-        print('ended', ss.count)
+        #print('ended', ss.count)
     else:
         
         ss.dvs_file = sidebar.file_uploader('choose file')#file_path_a#
@@ -186,6 +189,5 @@ if __name__ == '__main__':
             #ss.eye_tracker.run_events()
             st.rerun()
 
-                    # Register a job to be performed every 33 milliseconds
     
     

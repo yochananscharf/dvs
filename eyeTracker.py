@@ -20,19 +20,20 @@ class EyeTracking():
         self.visualizer_gray=None
         self.data_path = ''
         self.prev_time = -1
+        self.events_thresh = 200
         self.create_visualizers()
         self.visualize_image_size = self.resolution
         offset = int(self.resolution[0]/12)
         self.crop_box = (int(self.resolution[0]/2), offset, self.resolution[0], int(self.resolution[1]/2)+offset)
-        self.pupil_width = 100 # in pixels
-        self.pupil_start_x = 180
-        self.pupil_start_y = 45
+        self.pupil_width = 110 # in pixels
+        self.pupil_start_x = 160
+        self.pupil_start_y = 40
         self.draw_blank =  Image.new('RGBA', self.visualize_image_size, (255, 255, 255, 0))#for opacity 
-        self.roi_pupil = (self.pupil_start_x, self.pupil_start_y,  self.pupil_start_x+int(1.25*self.pupil_width),self.pupil_start_y+int(1.25*self.pupil_width))
+        self.roi_pupil = (self.pupil_start_x, self.pupil_start_y,  self.pupil_start_x+int(1.5*self.pupil_width),self.pupil_start_y+int(1.5*self.pupil_width))
         x = int(self.crop_box[0]+self.pupil_start_x/2)
         y = int(self.crop_box[1]+self.pupil_start_y/4)
-        w = int(self.pupil_width)
-        h = int(self.pupil_width)
+        w = int(self.pupil_width/2)
+        h = int(self.pupil_width/2)
         self.roi = (x, 
                     y, 
                     x+w, 
@@ -69,8 +70,8 @@ class EyeTracking():
         self.camera = dv.io.MonoCameraRecording(self.file_name)
 
         # Initialize a multi-stream slicer
-        self.slicer = dv.EventMultiStreamSlicer("events-frames")
-        self.slicer.addEventStream("events")
+        self.slicer = dv.EventMultiStreamSlicer("events")
+
         # Add a frame stream to the slicer
         self.slicer.addFrameStream("frames")
 
@@ -136,6 +137,10 @@ class EyeTracking():
         #print(self.filtered_counts)
         return filtered_events_list
 
+    def filter_center(self, events):
+        events_array = np.array([events.coordinates()])[0]
+        #find median y
+        y_median = np.median(events_array[:,1])
 
     # def detect_circle(self, edges):
         
