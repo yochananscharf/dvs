@@ -1,6 +1,6 @@
 # based on code from https://dv-processing.inivation.com/rel_1_7/event_stream_slicing.html
 
-from PIL import Image 
+from PIL import Image, ImageDraw 
 from datetime import timedelta
 import numpy as np
 from streamlit import session_state as ss
@@ -62,9 +62,17 @@ def display_preview(data):
 
     # Generate a preview and show the final image
     preview_image = Image.fromarray(ss.eye_tracker.visualizer.generateImage(events, latest_image))
+    
+    if ss.eye_center[0] > 0:
+        draw = ImageDraw.Draw(preview_image)
+        x0, y0 = ss.eye_center[0]-5, ss.eye_center[1]-5
+        x1, y1 = ss.eye_center[0]+5, ss.eye_center[1]+5
+        bounding_box = (x0, y0, x1, y1)
+        draw.ellipse(bounding_box, fill="red")
+      
     preview_image_cropped = preview_image.crop(ss.eye_tracker.crop_box)
     preview_image_cropped = preview_image_cropped.resize(ss.eye_tracker.resolution) # back to size of original image
-    image_draw = ss.eye_tracker.draw_image(preview_image_cropped, ss.eye_tracker.roi_pupil)
+    image_draw = ss.eye_tracker.draw_image(preview_image_cropped, ss.eye_tracker.roi_iris)
     image_area.image(image_draw)
     ss.eye_tracker.filter_region.accept(events)
     events_area = ss.eye_tracker.filter_region.generateEvents()
@@ -114,25 +122,33 @@ def display_preview(data):
         #image_pos = eye_tracker.draw_image(image_pos)
         #image_neg = Image.fromarray(ss.eye_tracker.visualizer_false.generateImage(filtered_neg))
         #image_neg_cropped = image_neg.crop(ss.eye_tracker.roi_left)
-        for j, fltrd in enumerate(filtered_list):
-            events_image = Image.fromarray(ss.eye_tracker.visualizer_false.generateImage(fltrd))
-            if (j%2)==0:
-                image_draw = ss.eye_tracker.draw_image(events_image, ss.eye_tracker.roi_left)
-            else:
-                image_draw = ss.eye_tracker.draw_image(events_image, ss.eye_tracker.roi_right)
-            img_plot_area[j].image(image_draw, width=200)
+        # for j, fltrd in enumerate(filtered_list):
+        #     events_image = Image.fromarray(ss.eye_tracker.visualizer_false.generateImage(fltrd))
+        #     if (j%2)==0:
+        #         image_draw = ss.eye_tracker.draw_image(events_image, ss.eye_tracker.roi_left)
+        #     else:
+        #         image_draw = ss.eye_tracker.draw_image(events_image, ss.eye_tracker.roi_right)
+        #     img_plot_area[j].image(image_draw, width=200)
         
         #num_pos = ss.eye_tracker.events_stats(filtered_pos)
         #num_neg = ss.eye_tracker.events_stats(filtered_neg)
         if events.size() > ss.eye_tracker.events_thresh:
 
-            ss.eye_tracker.filter_center(events_area)
+            ss.eye_center, inlier_mask =  ss.eye_tracker.filter_center(events_area)
+            num_events = len(events_area)
+            #events_inliers = [events_area[i] for i in range(num_events) if inlier_mask[i]]
+            #image_array = ss.eye_tracker.visualizer_gray.generateImage(events_area)
+         
+
+
             movement_direction  = ''
             if ss.eye_tracker.filtered_counts[2] >  1.2*ss.eye_tracker.filtered_counts[3]:
                 movement_direction = 'left'
             else:
                 movement_direction = 'right'
             col1.write('moving {} '.format(movement_direction))
+
+        
     #     p
     # when moving, there should be a large but similar amount of negative and positive events
     # as the darker pupil moves right: negative events to the right, positive events to the left and vise versa
@@ -171,19 +187,23 @@ if __name__ == '__main__':
         #print('ended', ss.count)
     else:
         
-        ss.dvs_file = sidebar.file_uploader('choose file')#file_path_a#
+        #ss.dvs_file = sidebar.file_uploader('choose file')#file_path_a#
+        file_path = "dvSave-2024_01_09_18_02_30.aedat4"
+        ss.dvs_file = file_path 
         ss.delta_t = sidebar.slider('Set Time-Window', min_value=10, max_value=100, value=30)
         ss.step_t = sidebar.slider('Set Files Time-Step', min_value=10, max_value=50, value=10)
         if ss.dvs_file is not None:
             ss.count = 0
-            data_dir = ss.dvs_file.name.split('.')[0]
-            running_dir = Path.cwd()
-            data_path = running_dir/data_dir
-            Path.mkdir(data_path,exist_ok=True)
+            ss.eye_center = (-1,-1)
+            #data_dir = ss.dvs_file.name.split('.')[0]
+          
+            #running_dir = Path.cwd()
+            #data_path = running_dir/data_dir
+            #Path.mkdir(data_path,exist_ok=True)
             ss.eye_tracker = EyeTracking(ss.dvs_file)
             ss.eye_tracker.delta_t = ss.delta_t
             ss.eye_tracker.step_t = ss.step_t
-            ss.eye_tracker.data_path = data_path
+            #ss.eye_tracker.data_path = data_path
             ss.eye_tracker.slicer.doEveryTimeInterval(timedelta(milliseconds=ss.step_t), display_preview)
             
             #ss.eye_tracker.run_events()
