@@ -363,25 +363,11 @@ class EyeTracking():
         - center: estimated circle center
         - inlier_mask: boolean mask of inlier points
         """
-        # Initial estimate of the center
-       
-        
-        # Best model tracking
+          
 
         num_points = len(points)
-
-
-        # if (self.previous_center[0]<=0):# first frame
-        #     sample_indices = np.random.choice(len(points), size=num_points//3, replace=False)
-        #     random_points =  points[sample_indices]
-        #     self.previous_center = np.mean(random_points, axis=0)
-       
-        
-        #best_center = (-1,-1)
-        best_inliers = []
-        best_inliers_count = -1
         best_inlier_mask = None      
-        #best_center_found = False
+     
 
         #img_points = self.plot_points(points)
         threshold = expected_radius/5
@@ -399,14 +385,10 @@ class EyeTracking():
                 balanced_points = self.balanced_points_selection(on_points, off_points, sample_size=2)
                 p1, p2, p3 = balanced_points[0], balanced_points[2], random.choice((balanced_points[1],balanced_points[3]) )
                 center = self.find_circle_center_from_three_points(p1, p2, p3, expected_radius, threshold)
-                
-                
-                
                 if center[0] > 0:
-                    img = self.plot_points([p1, p2, p3], [center])
                     potential_center_found = True
                     
-
+            #img = self.plot_points([p1, p2, p3], [center]) # for debug
             # Calculate distances from all data points to the fitted circle
             balanced_points = self.balanced_points_selection(on_points, off_points, sample_size=num_random_points)
 
@@ -431,22 +413,13 @@ class EyeTracking():
                 inliers_dict_num[it] = num_inliers
                 inliers_dict_centers[it] = center
             
-            # Update best model if more inliers found
-            # if ((num_inliers > best_inliers_count) and (distance_means < threshold)):# or (num_inliers > num_points/2):
-               
-            #     print(num_inliers)
-            #     best_inliers_count = num_inliers
-            #     best_inlier_mean = inlier_mean
-            #     best_inlier_mask = inlier_mask
-            #     best_inliers = np.array(inliers)
-            #     best_center = center
-            #     best_iter = it
+
 
 
         #sort iterations by number of inliers
         sorted_iterations  = {k: v for k, v in sorted(inliers_dict_num.items(), key=lambda item: item[1], reverse=True)}  
         sorted_centers = [inliers_dict_centers[k] for k in sorted_iterations.keys()]
-        img_inliers = self.plot_points(best_inliers, sorted_centers[:5])
+        #img_inliers = self.plot_points(best_inliers, sorted_centers[:5])
 
         centers_mean = np.mean(sorted_centers[:5], axis=0)
         
